@@ -1,7 +1,7 @@
 # Privacidade no Aferi
 
 > Rascunho técnico escrito junto com o código. Não é aconselhamento jurídico:
-> revise com um profissional antes de publicar o projeto ou de operar qualquer serviço.
+> revise com um profissional antes de operar qualquer serviço que receba dados.
 
 ## Resumo (versão 0.1.0)
 
@@ -70,4 +70,8 @@ Nada disso existe hoje. Se for implementado, será documentado aqui antes:
 
 ## Contato
 
-[a definir antes da publicação]
+Mantenedor: Yuri Souza.
+
+- **Dúvidas sobre privacidade:** abra uma issue no repositório do projeto no GitHub.
+  Não inclua endereços completos, senhas, códigos nem dados pessoais na issue.
+- **Falhas de segurança:** use o relatório privado descrito em [SECURITY.md](../SECURITY.md).
