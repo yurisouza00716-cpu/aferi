@@ -86,11 +86,6 @@ representam o desempenho no mundo real.
 - [Limitações](docs/LIMITACOES.md)
 - [Modelo de ameaças](docs/THREAT_MODEL.md)
 
-## Nome
-
-"Aferi" vem de "aferir": medir e verificar. O nome de trabalho inicial era
-TrustLens.
-
 ## Licença
 
 [MIT](LICENSE)
