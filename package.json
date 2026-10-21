@@ -1,7 +1,7 @@
 {
   "name": "aferi",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "Análise explicável de endereços (URLs): evidências, não vereditos.",
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
@@ -11,7 +11,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "devDependencies": {
     "@types/node": "^26.6.5",
@@ -21,5 +21,6 @@
   },
   "dependencies": {
     "tldts": "^7.4.19"
-  }
+  },
+  "private": "true"
 }
