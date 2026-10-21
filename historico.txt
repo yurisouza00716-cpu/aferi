@@ -1,0 +1,12 @@
+﻿8902afa docs: corrige contatos de seguran├ºa e privacidade
+56c7c40 docs: autor da licen├ºa e canais de contato
+22675e6 feat: verifica├º├úo opcional do certificado TLS (--tls)
+d19b88f feat: consulta de DNS opcional com prote├º├úo contra SSRF
+37a5387 docs: README, licen├ºa, pol├¡tica de seguran├ºa, contribui├º├úo e CI
+f7715a0 fix: nomes locais, marcas de nome comum e dom├¡nios do Mercado Libre
+71a8436 docs: privacidade, limita├º├Áes, modelo de amea├ºas e conjunto de avalia├º├úo
+ecff295 feat: relat├│rio explic├ível, sinais estruturais e CLI
+71cde13 feat: sinais de hom├│grafos, troca de caracteres e erros de digita├º├úo
+dd00428 feat: dom├¡nio registr├ível e sinais de imita├º├úo de marca
+b3962ad feat: normaliza├º├úo de URL com classifica├º├úo de IP e testes
+42708d5 chore: esqueleto inicial do projeto
