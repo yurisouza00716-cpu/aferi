@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "aferi": "tsx src/cli.ts"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +14,7 @@
   "type": "module",
   "devDependencies": {
     "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
   },
