@@ -6,7 +6,8 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "aferi": "tsx src/cli.ts"
+    "aferi": "tsx src/cli.ts",
+    "eval": "tsx tests/evaluate.ts"
   },
   "keywords": [],
   "author": "",
