@@ -52,7 +52,11 @@ Nada disso existe hoje. Se for implementado, será documentado aqui antes:
 - Coletar o mínimo possível e, por padrão, nada.
 - Documentar toda mudança no tratamento de dados antes de lançá-la.
 - Nunca colocar dados pessoais ou endereços completos em registros públicos.
+## Modo de rede opcional
 
+Com `--network`, o Aferi consulta o DNS do domínio ao resolvedor do seu sistema.
+Veja [NETWORK.md](NETWORK.md). Sem essa opção, tudo o que está neste documento
+continua valendo.
 ## Contato
 
 [a definir antes da publicação]

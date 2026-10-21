@@ -27,7 +27,10 @@ export interface Report {
     registrableDomain: string | null;
   };
   privacy: {
-    networkRequests: false;
+    /** true somente se alguma requisição de rede foi realmente feita. */
+    networkRequests: boolean;
+    /** Descrição do que foi enviado pela rede (vazio quando nada foi enviado). */
+    networkActivity: string[];
     /** O que existia no endereço digitado e foi deixado de fora do relatório. */
     omittedFromReport: string[];
   };

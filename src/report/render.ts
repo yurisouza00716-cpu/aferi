@@ -85,7 +85,12 @@ export function renderText(result: AnalysisResult): string {
 
   out.push("");
   out.push("Privacidade");
-  out.push(...wrap("Nenhuma requisição de rede foi feita durante esta análise.", "  "));
+  if (result.privacy.networkRequests) {
+    out.push(...wrap("Requisições de rede feitas nesta análise:", "  "));
+    for (const a of result.privacy.networkActivity) out.push(...wrap(`- ${a}`, "    "));
+  } else {
+    out.push(...wrap("Nenhuma requisição de rede foi feita durante esta análise.", "  "));
+  }
   if (result.privacy.omittedFromReport.length > 0) {
     out.push(
       ...wrap(

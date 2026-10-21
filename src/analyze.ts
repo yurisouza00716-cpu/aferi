@@ -14,6 +14,14 @@ import type {
 
 export const AFERI_VERSION = "0.1.0";
 
+/** Resultados de verificações de rede (opcionais), preparados por analyzeWithNetwork. */
+export interface NetworkExtras {
+  signals: Signal[];
+  connectionNotes: string[];
+  /** O que foi enviado pela rede. Vazio quando nenhuma requisição foi feita. */
+  activity: string[];
+}
+
 const FAILURE_MESSAGES: Record<NormalizeError, string> = {
   empty: "Nenhum endereço foi informado.",
   too_long: "O endereço é longo demais para ser analisado (limite de 2048 caracteres).",
@@ -52,6 +60,9 @@ const LIMITATIONS = [
   "Nenhuma análise garante segurança absoluta.",
 ];
 
+const NETWORK_FIRST_LIMITATION =
+  "Esta versão analisa o texto do endereço e, quando solicitado, consulta o DNS do domínio; não acessa a página, não verifica certificado e não consulta fontes de reputação.";
+
 function bySeverity(a: Signal, b: Signal): number {
   return RANK[b.severity] - RANK[a.severity];
 }
@@ -78,7 +89,11 @@ function levelFor(signals: Signal[]): ConclusionLevel {
   return "no_signals_found";
 }
 
-export function analyze(input: string, now: Date = new Date()): AnalysisResult {
+export function analyze(
+  input: string,
+  now: Date = new Date(),
+  extras?: NetworkExtras,
+): AnalysisResult {
   const analyzedAt = now.toISOString();
   const url = normalizeUrl(input);
 
@@ -92,11 +107,13 @@ export function analyze(input: string, now: Date = new Date()): AnalysisResult {
     };
   }
 
+  const networkMode = extras !== undefined;
   const parts = splitDomain(url);
   const signals: Signal[] = [
     ...detectStructureSignals(url),
     ...detectBrandSignals(url),
     ...detectLookalikeSignals(url),
+    ...(extras?.signals ?? []),
   ];
 
   const omitted: string[] = [];
@@ -105,13 +122,18 @@ export function analyze(input: string, now: Date = new Date()): AnalysisResult {
   if (url.hasQuery) omitted.push("parâmetros do endereço (depois do ?)");
   if (url.hasFragment) omitted.push("fragmento (depois do #)");
 
-  const connectionNotes =
+  const connectionNotes: string[] =
     url.scheme === "https"
       ? [
           "O endereço usa https: a conexão seria criptografada, mas isso não prova que o site seja legítimo.",
-          "O certificado não foi verificado: esta versão não faz consultas de rede.",
+          networkMode
+            ? "O certificado não foi verificado: esta versão ainda não faz essa verificação."
+            : "O certificado não foi verificado: esta versão não faz consultas de rede.",
         ]
-      : ["Nenhuma verificação de rede foi feita: esta versão analisa apenas o texto do endereço."];
+      : networkMode
+        ? []
+        : ["Nenhuma verificação de rede foi feita: esta versão analisa apenas o texto do endereço."];
+  if (extras) connectionNotes.push(...extras.connectionNotes);
 
   const identityHasSignals = signals.some((s) => s.dimension === "identity");
   const identityNotes = identityHasSignals
@@ -124,6 +146,7 @@ export function analyze(input: string, now: Date = new Date()): AnalysisResult {
       ];
 
   const level = levelFor(signals);
+  const activity = extras?.activity ?? [];
 
   return {
     ok: true,
@@ -135,7 +158,11 @@ export function analyze(input: string, now: Date = new Date()): AnalysisResult {
       hostnameDisplay: url.hostnameUnicode,
       registrableDomain: parts.registrableDomain,
     },
-    privacy: { networkRequests: false, omittedFromReport: omitted },
+    privacy: {
+      networkRequests: activity.length > 0,
+      networkActivity: activity,
+      omittedFromReport: omitted,
+    },
     dimensions: {
       connection: dimensionReport(signals, "connection", "not_analyzed", connectionNotes),
       identity: dimensionReport(signals, "identity", "no_signals_found", identityNotes),
@@ -151,6 +178,6 @@ export function analyze(input: string, now: Date = new Date()): AnalysisResult {
       summary: SUMMARY[level],
       recommendation: RECOMMENDATION[level],
     },
-    limitations: LIMITATIONS,
+    limitations: networkMode ? [NETWORK_FIRST_LIMITATION, ...LIMITATIONS.slice(1)] : LIMITATIONS,
   };
 }
