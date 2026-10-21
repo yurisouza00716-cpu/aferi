@@ -14,12 +14,21 @@ const IP_KIND_PT: Record<IpKind, string> = {
   reserved: "faixa reservada",
 };
 
+/** Nomes reservados para uso local ou interno: não identificam um site público. */
+const LOCAL_SUFFIXES = [".localhost", ".local", ".internal", ".test", ".invalid", ".example"];
+
+function isLocalName(hostname: string): boolean {
+  return hostname === "localhost" || LOCAL_SUFFIXES.some((s) => hostname.endsWith(s));
+}
+
 export function detectStructureSignals(url: NormalizedUrl): Signal[] {
   const signals: Signal[] = [];
   const nonPublicIp = url.isIp && url.ipKind !== "public";
+  const localName = !url.isIp && isLocalName(url.hostname);
+  const internal = nonPublicIp || localName;
 
-  // http em equipamento local é normal; só sinalizamos para o resto.
-  if (url.scheme === "http" && !nonPublicIp) {
+  // http e portas incomuns são normais em equipamentos e servidores locais.
+  if (url.scheme === "http" && !internal) {
     signals.push({
       id: "connection.no_https",
       dimension: "connection",
@@ -31,7 +40,7 @@ export function detectStructureSignals(url: NormalizedUrl): Signal[] {
     });
   }
 
-  if (url.port !== null) {
+  if (url.port !== null && !internal) {
     signals.push({
       id: "connection.non_standard_port",
       dimension: "connection",
@@ -65,6 +74,18 @@ export function detectStructureSignals(url: NormalizedUrl): Signal[] {
         uncertainty: UNCERTAINTY,
       });
     }
+  }
+
+  if (localName) {
+    signals.push({
+      id: "identity.local_name",
+      dimension: "identity",
+      severity: "info",
+      observation: "O endereço usa um nome reservado para uso local ou interno.",
+      inference:
+        "Esse tipo de nome não identifica um site público na internet. O Aferi não faz requisições a ele.",
+      uncertainty: UNCERTAINTY,
+    });
   }
 
   if (url.isIp) {

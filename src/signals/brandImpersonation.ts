@@ -6,6 +6,18 @@ import type { Signal } from "./types";
 const UNCERTAINTY =
   "O Aferi não confirma a identidade do site. A lista de domínios oficiais é limitada e pode estar incompleta.";
 
+/**
+ * Palavras que costumam acompanhar o nome de uma marca em endereços enganosos.
+ * Quando a marca tem nome de uso comum (ex.: "apple"), só a presença de uma
+ * dessas palavras eleva o sinal de leve para moderado.
+ */
+const TRIGGER_WORDS: ReadonlySet<string> = new Set([
+  "login", "signin", "secure", "security", "support", "verify", "verification",
+  "account", "wallet", "update", "help", "pay", "payment", "confirm", "auth", "access",
+  "seguro", "seguranca", "acesso", "conta", "verificacao", "atualizar", "atualizacao",
+  "suporte", "ajuda", "cadastro", "entrar", "pagamento", "confirmar",
+]);
+
 function tokens(label: string): string[] {
   return label.split("-").filter(Boolean);
 }
@@ -69,13 +81,17 @@ export function detectBrandSignals(
     const domTokens = parts.registrableLabel ? tokens(parts.registrableLabel) : [];
     const inDom = brand.keywords.find((k) => domTokens.includes(k));
     if (inDom) {
+      const hasTrigger = domTokens.some((t) => TRIGGER_WORDS.has(t));
+      const soft = brand.commonWord === true && !hasTrigger;
       signals.push({
         id: "identity.brand_in_domain_name",
         dimension: "identity",
-        severity: "medium",
+        severity: soft ? "low" : "medium",
         brandId: brand.id,
         observation: `O nome "${inDom}" aparece no domínio "${registrable}", que não consta entre os domínios oficiais conhecidos de ${brand.name}.`,
-        inference: `O domínio pode estar tentando se associar a ${brand.name}, ou pode ser um domínio legítimo que ainda não está na lista do Aferi.`,
+        inference: soft
+          ? `"${inDom}" também é uma palavra de uso comum, então o endereço pode não ter relação nenhuma com ${brand.name}.`
+          : `O domínio pode estar tentando se associar a ${brand.name}, ou pode ser um domínio legítimo que ainda não está na lista do Aferi.`,
         uncertainty: UNCERTAINTY,
       });
     }
