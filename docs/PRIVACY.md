@@ -5,13 +5,17 @@
 
 ## Resumo (versão 0.1.0)
 
-O Aferi:
+**Por padrão**, o Aferi:
 
 - analisa o endereço **localmente**, na memória do seu computador;
 - **não faz nenhuma requisição de rede**;
 - **não grava** logs, histórico, cache nem arquivos;
 - **não tem** telemetria, contas nem cookies;
 - **não envia** nada a ninguém.
+
+Com as opções `--network` e `--tls`, o Aferi faz consultas de rede que você
+escolhe ativar. Elas estão descritas em [NETWORK.md](NETWORK.md), e o próprio
+relatório lista o que foi feito na seção "Privacidade".
 
 ## O que o Aferi recebe
 
@@ -26,6 +30,19 @@ Somente esquema, domínio e porta. Usuário, senha, caminho da página, parâmet
 *quais categorias* foram omitidas, sem repetir o conteúdo. Testes automatizados
 verificam isso.
 
+## Com `--network` (DNS)
+
+Sai do computador apenas o **nome do domínio**, para o resolvedor do seu sistema.
+Quem opera esse resolvedor pode ver que você consultou aquele nome.
+
+## Com `--tls` (certificado)
+
+O Aferi conecta ao servidor do site analisado (porta 443) apenas para ler o
+certificado. Nenhuma requisição HTTP é enviada e a página não é aberta, mas:
+
+- o servidor do site pode ver o **seu endereço IP**;
+- quem observa a sua rede vê o nome do domínio e o IP de destino.
+
 ## Fora do controle do Aferi
 
 - O histórico do terminal pode guardar o comando digitado, **incluindo o endereço
@@ -37,8 +54,6 @@ verificam isso.
 
 Nada disso existe hoje. Se for implementado, será documentado aqui antes:
 
-- **Verificação de certificado TLS:** conecta ao servidor do site analisado, que
-  poderá ver o endereço IP de quem consulta.
 - **Fontes de reputação externas:** enviariam o domínio a terceiros. Devem ficar
   **desligadas por padrão**, exigir consentimento explícito, informar exatamente
   quais dados saem e enviar apenas o domínio (nunca caminho, parâmetros ou credenciais).
@@ -52,11 +67,7 @@ Nada disso existe hoje. Se for implementado, será documentado aqui antes:
 - Coletar o mínimo possível e, por padrão, nada.
 - Documentar toda mudança no tratamento de dados antes de lançá-la.
 - Nunca colocar dados pessoais ou endereços completos em registros públicos.
-## Modo de rede opcional
 
-Com `--network`, o Aferi consulta o DNS do domínio ao resolvedor do seu sistema.
-Veja [NETWORK.md](NETWORK.md). Sem essa opção, tudo o que está neste documento
-continua valendo.
 ## Contato
 
 [a definir antes da publicação]

@@ -10,11 +10,12 @@ indicar e o que continua incerto**.
 ## Status
 
 Versão **0.1.0**, em estágio inicial. Ainda não há extensão de navegador, API
-nem consulta a fontes externas.
+nem consulta a fontes de reputação.
 
 ## O que faz hoje
 
-Analisa **apenas o texto do endereço**, localmente, sem nenhuma requisição de rede:
+Por padrão, analisa **apenas o texto do endereço**, localmente, sem nenhuma
+requisição de rede:
 
 - separa o domínio principal (com suporte a sufixos como `com.br`);
 - detecta nomes de marcas conhecidas em subdomínios e domínios enganosos;
@@ -23,17 +24,22 @@ Analisa **apenas o texto do endereço**, localmente, sem nenhuma requisição de
 - gera um relatório que separa **conexão, identidade, comportamento e reputação**,
   com recomendação e limitações.
 
+Opcionalmente, você pode ativar verificações de rede (veja [Privacidade](#privacidade)):
+
+- `--network`: consulta o DNS do domínio;
+- `--tls`: também lê o certificado do site, com proteção contra SSRF e sem abrir a página.
+
 ## O que não faz
 
-Não abre a página, não verifica certificado, não consulta reputação e não
-expande links encurtados. Veja [docs/LIMITACOES.md](docs/LIMITACOES.md).
+Não abre a página, não verifica a revogação de certificados, não consulta
+reputação e não expande links encurtados. Veja [docs/LIMITACOES.md](docs/LIMITACOES.md).
 
 ## Aviso importante
 
 O Aferi **não garante segurança**. "Nenhum sinal encontrado" não significa que o
-site seja seguro nem que a identidade esteja confirmada, e HTTPS válido não prova
-que um site seja legítimo. O Aferi não substitui antivírus, o navegador ou as
-ferramentas do seu banco.
+site seja seguro nem que a identidade esteja confirmada, e HTTPS válido ou um
+certificado válido não provam que um site seja legítimo. O Aferi não substitui
+antivírus, o navegador ou as ferramentas do seu banco.
 
 ## Uso
 
@@ -43,15 +49,23 @@ Requer [Node.js](https://nodejs.org) (versão LTS).
 npm install
 npm run aferi -- "https://exemplo.com.br"
 npm run aferi -- --json "https://exemplo.com.br"
+npm run aferi -- --network "https://exemplo.com.br"
+npm run aferi -- --tls "https://exemplo.com.br"
 ```
 
 Coloque sempre o endereço **entre aspas**.
 
 ## Privacidade
 
-Nada sai do seu computador e nada é gravado. O relatório mostra só esquema,
-domínio e porta (nunca usuário, senha, caminho, parâmetros ou fragmento).
-Detalhes e pontos fora do controle do Aferi em [docs/PRIVACY.md](docs/PRIVACY.md).
+Por padrão, nada sai do seu computador e nada é gravado. O relatório mostra só
+esquema, domínio e porta (nunca usuário, senha, caminho, parâmetros ou fragmento).
+
+Com `--network`, o nome do domínio é enviado ao resolvedor de DNS do seu sistema.
+Com `--tls`, o Aferi também conecta ao servidor do site (porta 443) só para ler o
+certificado, e o servidor passa a ver o seu endereço IP. O relatório sempre lista
+o que foi feito pela rede.
+
+Detalhes em [docs/PRIVACY.md](docs/PRIVACY.md) e [docs/NETWORK.md](docs/NETWORK.md).
 
 ## Testes e avaliação
 
@@ -68,6 +82,7 @@ representam o desempenho no mundo real.
 ## Documentação
 
 - [Privacidade](docs/PRIVACY.md)
+- [Modo de rede](docs/NETWORK.md)
 - [Limitações](docs/LIMITACOES.md)
 - [Modelo de ameaças](docs/THREAT_MODEL.md)
 

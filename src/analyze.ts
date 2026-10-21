@@ -20,6 +20,10 @@ export interface NetworkExtras {
   connectionNotes: string[];
   /** O que foi enviado pela rede. Vazio quando nenhuma requisição foi feita. */
   activity: string[];
+  /** Descrição do que esta análise de rede cobriu (substitui a primeira limitação). */
+  scope: string;
+  /** true quando a leitura do certificado foi solicitada (--tls). */
+  tlsRequested: boolean;
 }
 
 const FAILURE_MESSAGES: Record<NormalizeError, string> = {
@@ -59,9 +63,6 @@ const LIMITATIONS = [
   "A lista de organizações conhecidas é pequena e escrita à mão; pode estar incompleta ou desatualizada.",
   "Nenhuma análise garante segurança absoluta.",
 ];
-
-const NETWORK_FIRST_LIMITATION =
-  "Esta versão analisa o texto do endereço e, quando solicitado, consulta o DNS do domínio; não acessa a página, não verifica certificado e não consulta fontes de reputação.";
 
 function bySeverity(a: Signal, b: Signal): number {
   return RANK[b.severity] - RANK[a.severity];
@@ -122,18 +123,30 @@ export function analyze(
   if (url.hasQuery) omitted.push("parâmetros do endereço (depois do ?)");
   if (url.hasFragment) omitted.push("fragmento (depois do #)");
 
-  const connectionNotes: string[] =
+  const httpsNote =
     url.scheme === "https"
       ? [
           "O endereço usa https: a conexão seria criptografada, mas isso não prova que o site seja legítimo.",
+        ]
+      : [];
+  const certificateNote =
+    url.scheme === "https" && extras?.tlsRequested !== true
+      ? [
           networkMode
-            ? "O certificado não foi verificado: esta versão ainda não faz essa verificação."
+            ? "O certificado não foi verificado: use --tls para ler o certificado (o site analisado passa a ver o seu endereço IP)."
             : "O certificado não foi verificado: esta versão não faz consultas de rede.",
         ]
-      : networkMode
-        ? []
-        : ["Nenhuma verificação de rede foi feita: esta versão analisa apenas o texto do endereço."];
-  if (extras) connectionNotes.push(...extras.connectionNotes);
+      : [];
+  const noNetworkNote =
+    !networkMode && url.scheme !== "https"
+      ? ["Nenhuma verificação de rede foi feita: esta versão analisa apenas o texto do endereço."]
+      : [];
+  const connectionNotes = [
+    ...httpsNote,
+    ...certificateNote,
+    ...noNetworkNote,
+    ...(extras?.connectionNotes ?? []),
+  ];
 
   const identityHasSignals = signals.some((s) => s.dimension === "identity");
   const identityNotes = identityHasSignals
@@ -178,6 +191,6 @@ export function analyze(
       summary: SUMMARY[level],
       recommendation: RECOMMENDATION[level],
     },
-    limitations: networkMode ? [NETWORK_FIRST_LIMITATION, ...LIMITATIONS.slice(1)] : LIMITATIONS,
+    limitations: extras ? [extras.scope, ...LIMITATIONS.slice(1)] : LIMITATIONS,
   };
 }
